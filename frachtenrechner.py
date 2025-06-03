@@ -1,5 +1,44 @@
+
 import streamlit as st
 import pandas as pd
+from datetime import datetime
+
+st.set_page_config(page_title="KEP Frachtenrechner", layout="wide")
+
+# Dieselzuschläge manuell per Session-State speichern
+if "fuel_express" not in st.session_state:
+    st.session_state["fuel_express"] = 0.0
+    st.session_state["fuel_express_date"] = None
+if "fuel_standard" not in st.session_state:
+    st.session_state["fuel_standard"] = 0.0
+    st.session_state["fuel_standard_date"] = None
+
+# Manuelle Eingabe von Dieselzuschlägen
+st.sidebar.header("🔧 Dieselzuschläge manuell eingeben")
+
+new_fuel_express = st.sidebar.number_input(
+    "FuelExpress (alle Tarife außer *Single und *Multi)",
+    value=st.session_state["fuel_express"],
+    step=0.01,
+    format="%.2f"
+)
+if new_fuel_express != st.session_state["fuel_express"]:
+    st.session_state["fuel_express"] = new_fuel_express
+    st.session_state["fuel_express_date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+new_fuel_standard = st.sidebar.number_input(
+    "FuelStandard (nur *Single und *Multi)",
+    value=st.session_state["fuel_standard"],
+    step=0.01,
+    format="%.2f"
+)
+if new_fuel_standard != st.session_state["fuel_standard"]:
+    st.session_state["fuel_standard"] = new_fuel_standard
+    st.session_state["fuel_standard_date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+st.sidebar.markdown("#### Letzte Eingaben:")
+st.sidebar.write(f"FuelExpress: {st.session_state['fuel_express']:.2f} € ({st.session_state['fuel_express_date']})")
+st.sidebar.write(f"FuelStandard: {st.session_state['fuel_standard']:.2f} € ({st.session_state['fuel_standard_date']})")
 
 # Excel-Daten laden
 def load_data():
@@ -39,19 +78,19 @@ def finde_rate(tarif, gk, zone, frachtraten):
         return df.iloc[0][zone]
     return None
 
-# Zuschlag finden
-def finde_zuschlag(tarif, adds):
-    df = adds[adds["TARIF"] == tarif]
-    if not df.empty:
-        return df.iloc[0]["FUELSURCHARGE"]
-    return 0.0
+# Zuschlag finden (angepasst)
+def finde_zuschlag(tarif):
+    if "Single" in tarif or "Multi" in tarif:
+        return st.session_state.get("fuel_standard", 0.0)
+    else:
+        return st.session_state.get("fuel_express", 0.0)
 
 # Fracht berechnen (Import/Export)
 def berechne_fracht(gewicht, land, tarif, zonen, gewichtsklassen, frachtraten, adds):
     zone = finde_zone(land, tarif, zonen)
     gk = finde_gewichtsklasse(gewicht, tarif, gewichtsklassen)
     rate = finde_rate(tarif, gk, zone, frachtraten)
-    zuschlag = finde_zuschlag(tarif, adds)
+    zuschlag = finde_zuschlag(tarif)
 
     if gk and rate is not None:
         kosten = rate * gewicht if gewicht > 20 else rate
