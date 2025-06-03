@@ -37,8 +37,8 @@ if new_fuel_standard != st.session_state["fuel_standard"]:
     st.session_state["fuel_standard_date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 st.sidebar.markdown("#### Letzte Eingaben:")
-st.sidebar.write(f"FuelExpress: {st.session_state['fuel_express']:.2f} € ({st.session_state['fuel_express_date']})")
-st.sidebar.write(f"FuelStandard: {st.session_state['fuel_standard']:.2f} € ({st.session_state['fuel_standard_date']})")
+st.sidebar.write(f"FuelExpress: {st.session_state['fuel_express']:.4f} € ({st.session_state['fuel_express_date']})")
+st.sidebar.write(f"FuelStandard: {st.session_state['fuel_standard']:.4f} € ({st.session_state['fuel_standard_date']})")
 
 # Excel-Daten laden
 def load_data():
