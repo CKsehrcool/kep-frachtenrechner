@@ -20,7 +20,7 @@ new_fuel_express = st.sidebar.number_input(
     "FuelExpress (alle Tarife außer *Single und *Multi)",
     value=st.session_state["fuel_express"],
     step=0.01,
-    format="%.4f"
+    format="%.2f"
 )
 if new_fuel_express != st.session_state["fuel_express"]:
     st.session_state["fuel_express"] = new_fuel_express
@@ -30,15 +30,15 @@ new_fuel_standard = st.sidebar.number_input(
     "FuelStandard (nur *Single und *Multi)",
     value=st.session_state["fuel_standard"],
     step=0.01,
-    format="%.4f"
+    format="%.2f"
 )
 if new_fuel_standard != st.session_state["fuel_standard"]:
     st.session_state["fuel_standard"] = new_fuel_standard
     st.session_state["fuel_standard_date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 st.sidebar.markdown("#### Letzte Eingaben:")
-st.sidebar.write(f"FuelExpress: {st.session_state['fuel_express']:.4f} € ({st.session_state['fuel_express_date']})")
-st.sidebar.write(f"FuelStandard: {st.session_state['fuel_standard']:.4f} € ({st.session_state['fuel_standard_date']})")
+st.sidebar.write(f"FuelExpress: {st.session_state['fuel_express']:.2f} € ({st.session_state['fuel_express_date']})")
+st.sidebar.write(f"FuelStandard: {st.session_state['fuel_standard']:.2f} € ({st.session_state['fuel_standard_date']})")
 
 # Excel-Daten laden
 def load_data():
