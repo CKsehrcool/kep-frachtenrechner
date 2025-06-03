@@ -20,7 +20,7 @@ new_fuel_express = st.sidebar.number_input(
     "FuelExpress (alle Tarife außer *Single und *Multi)",
     value=st.session_state["fuel_express"],
     step=0.01,
-    format="%.2f"
+    format="%.4f"
 )
 if new_fuel_express != st.session_state["fuel_express"]:
     st.session_state["fuel_express"] = new_fuel_express
@@ -30,7 +30,7 @@ new_fuel_standard = st.sidebar.number_input(
     "FuelStandard (nur *Single und *Multi)",
     value=st.session_state["fuel_standard"],
     step=0.01,
-    format="%.2f"
+    format="%.4f"
 )
 if new_fuel_standard != st.session_state["fuel_standard"]:
     st.session_state["fuel_standard"] = new_fuel_standard
