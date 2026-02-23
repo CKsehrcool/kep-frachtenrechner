@@ -88,10 +88,10 @@ st.header("Exportkosten")
 export_country = st.selectbox("Export nach:", country_codes["COUNTRY"].unique())
 export_gewicht = st.number_input("Gewicht in kg Export", min_value=0.0, step=0.1)
 export_tarif = st.selectbox("Serviceart Export", [
-    "UPS_E_Express_Plus_env", "UPS_E_Express_Plus_doc1", "UPS_E_Express_Plus_pgk2", "UPS_E_Express_env",
+    "UPS_E_Express_env",
     "UPS_E_Express_doc1", "UPS_E_Express_pgk2", "UPS_E_Express_Noon_env", "UPS_E_Express_Noon_pgk1",
     "UPS_E_Express_Svr_env", "UPS_E_Express_Svr_doc1", "UPS_E_Express_Svr_pgk1",
-    "UPS_E_Std_Single2", "UPS_E_Std_Multi2", "UPS_E_Expedited1"])
+    "UPS_E_Std_Single2", "UPS_E_Std_Multi2", "UPS_E_Expedited1", "UPS_E_Std_Singledom","UPS_E_Std_Multidom"])
 
 export_land = land_map.get(export_country)
 export_kosten, export_diesel, export_total = berechne_fracht(
