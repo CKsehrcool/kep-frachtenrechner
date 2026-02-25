@@ -72,7 +72,7 @@ import_gewicht = st.number_input("Gewicht in kg Import", min_value=0.0, step=0.1
 import_tarif = st.selectbox("Serviceart Import", [
     "UPS_I_Express_Plus_pkg1", "UPS_I_Express_env", "UPS_I_Express_doc1", "UPS_I_Express_pgk2",
     "UPS_I_Svr_env", "UPS_I_Svr_doc1", "UPS_I_Svr_pgk2", "UPS_I_Std_Single2",
-    "UPS_I_Std_Multi2", "UPS_I_Expideted1"])
+    "UPS_I_Std_Multi2", "UPS_I_Expideted1", "UPS_E_Std_Singledom","UPS_E_Std_Multidom"])
 
 import_land = land_map.get(import_country)
 import_kosten, import_diesel, import_total = berechne_fracht(
