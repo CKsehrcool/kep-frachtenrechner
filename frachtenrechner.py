@@ -1,6 +1,20 @@
 import streamlit as st
 import pandas as pd
 
+# Ab diesem Gewicht gilt rate * gewicht (statt nur rate) je Tarif.
+# Tarife die hier nicht aufgeführt sind, verwenden immer nur rate.
+RATE_MAL_GEWICHT_AB = {
+    "StandardSingleDE": 70.01,
+    "StandardSingleALL": 20.01,
+    "StandardMultiDE": 200.01,
+    "StandardMultiALL": 20.01,
+    "ExpressSaverALL_doc": 20.01,
+    "ExpressSaverALL_pkg": 20.01,
+    "ExpressALL_doc": 20.01,
+    "ExpressALL_pkg": 20.01,
+    "ExpressNoon_pkg": 20.01,
+}
+
 # Excel-Daten laden
 def load_data():
     xls = pd.ExcelFile("0493_Frachtenrechner_KEP_DATA.xlsx")
@@ -54,7 +68,12 @@ def berechne_fracht(gewicht, land, tarif, zonen, gewichtsklassen, frachtraten, a
     zuschlag = finde_zuschlag(tarif, adds)
 
     if gk and rate is not None:
-        kosten = rate * gewicht if gewicht > 20 else rate
+        # Prüfe ob für diesen Tarif ab dem aktuellen Gewicht rate*gewicht gilt
+        schwelle = RATE_MAL_GEWICHT_AB.get(tarif)
+        if schwelle is not None and gewicht >= schwelle:
+            kosten = rate * gewicht
+        else:
+            kosten = rate
         diesel = kosten * zuschlag
         return kosten, diesel, kosten + diesel
     return 0.0, 0.0, 0.0
