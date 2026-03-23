@@ -70,9 +70,9 @@ st.header("Importkosten")
 import_country = st.selectbox("Import aus:", country_codes["COUNTRY"].unique())
 import_gewicht = st.number_input("Gewicht in kg Import", min_value=0.0, step=0.1)
 import_tarif = st.selectbox("Serviceart Import", [
-    "UPS_I_Express_Plus_pkg1", "UPS_I_Express_env", "UPS_I_Express_doc1", "UPS_I_Express_pgk2",
-    "UPS_I_Svr_env", "UPS_I_Svr_doc1", "UPS_I_Express_Svr_pgk2", "UPS_I_Std_Single2",
-    "UPS_I_Std_Multi2", "UPS_I_Expideted1", "UPS_E_Std_Singledom","UPS_E_Std_Multidom"])
+    "StandardSingleDE", "StandardSingleALL", "StandardMultiDE", "StandardMultiALL",
+    "ExpressSaverALL_env", "ExpressSaverALL_doc", "ExpressSaverALL_pkg", "ExpressALL_env",
+    "ExpressALL_doc", "ExpressALL_pkg", "ExpressNoon_env","ExpressNoon_pkg"])
 
 import_land = land_map.get(import_country)
 import_kosten, import_diesel, import_total = berechne_fracht(
@@ -88,10 +88,9 @@ st.header("Exportkosten")
 export_country = st.selectbox("Export nach:", country_codes["COUNTRY"].unique())
 export_gewicht = st.number_input("Gewicht in kg Export", min_value=0.0, step=0.1)
 export_tarif = st.selectbox("Serviceart Export", [
-    "UPS_E_Express_env",
-    "UPS_E_Express_doc1", "UPS_E_Express_pgk2", "UPS_E_Express_Noon_env", "UPS_E_Express_Noon_pgk1",
-    "UPS_E_Express_Svr_env", "UPS_E_Express_Svr_doc1", "UPS_E_Express_Svr_pgk1",
-    "UPS_E_Std_Single2", "UPS_E_Std_Multi2", "UPS_E_Expedited1", "UPS_E_Std_Singledom","UPS_E_Std_Multidom"])
+    "StandardSingleDE", "StandardSingleALL", "StandardMultiDE", "StandardMultiALL",
+    "ExpressSaverALL_env", "ExpressSaverALL_doc", "ExpressSaverALL_pkg", "ExpressALL_env",
+    "ExpressALL_doc", "ExpressALL_pkg", "ExpressNoon_env","ExpressNoon_pkg"])
 
 export_land = land_map.get(export_country)
 export_kosten, export_diesel, export_total = berechne_fracht(
