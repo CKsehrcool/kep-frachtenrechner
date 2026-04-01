@@ -35,8 +35,7 @@ jobs:
       - name: Abhängigkeiten installieren
         run: |
           pip install -r scripts/requirements.txt
-          playwright install chromium
-          playwright install-deps chromium
+          python -m playwright install --with-deps chromium
 
       # ── 4. Skript ausführen ───────────────────────────────────────────────
       - name: Kraftstoffzuschläge abrufen und Excel aktualisieren
