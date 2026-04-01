@@ -1,0 +1,130 @@
+name: UPS Kraftstoffzuschlag Aktualisierung
+
+on:
+  # Automatisch jeden Montag um 08:00 Uhr (UTC = 09:00 Uhr DE-Winterzeit / 10:00 Uhr Sommerzeit)
+  schedule:
+    - cron: "0 8 * * 1"
+
+  # Auch manuell auslösbar (für Tests und manuelle Aktualisierungen)
+  workflow_dispatch:
+
+permissions:
+  contents: write   # Für Git-Commits
+  issues: write     # Für Fehler-Issues
+
+jobs:
+  update-surcharges:
+    name: Kraftstoffzuschläge aktualisieren
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Repository auschecken ──────────────────────────────────────────
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── 2. Python einrichten ──────────────────────────────────────────────
+      - name: Python 3.11 einrichten
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: scripts/requirements.txt
+
+      # ── 3. Abhängigkeiten installieren ────────────────────────────────────
+      - name: Abhängigkeiten installieren
+        run: |
+          pip install -r scripts/requirements.txt
+          playwright install chromium
+          playwright install-deps chromium
+
+      # ── 4. Skript ausführen ───────────────────────────────────────────────
+      - name: Kraftstoffzuschläge abrufen und Excel aktualisieren
+        id: update
+        run: python scripts/update_fuel_surcharges.py
+        continue-on-error: true   # Fehler abfangen – wird unten behandelt
+
+      # ── 5. Bei Fehler: GitHub Issue erstellen ─────────────────────────────
+      - name: Fehler-Issue erstellen
+        if: steps.update.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const today = new Date().toISOString().split('T')[0];
+            const title = `⚠️ Kraftstoffzuschlag-Update fehlgeschlagen (${today})`;
+
+            // Prüfen ob bereits ein offenes Issue mit diesem Titel existiert
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'fuel-surcharge-update'
+            });
+
+            const alreadyOpen = issues.data.some(i => i.title.startsWith('⚠️ Kraftstoffzuschlag-Update fehlgeschlagen'));
+            if (alreadyOpen) {
+              console.log('Fehler-Issue existiert bereits, kein neues Issue erstellt.');
+              return;
+            }
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: [
+                '## Automatisches Update fehlgeschlagen',
+                '',
+                `Das wöchentliche Update der UPS Kraftstoffzuschläge ist am **${today}** fehlgeschlagen.`,
+                '',
+                '### Mögliche Ursachen',
+                '- Die UPS-Website ist nicht erreichbar',
+                '- Die Seitenstruktur der UPS-Website hat sich geändert',
+                '- Allgemeiner Netzwerkfehler',
+                '',
+                '### Nächste Schritte',
+                '1. [Workflow-Log prüfen](' +
+                  `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}` +
+                  ')',
+                '2. Screenshot `ups_debug_screenshot.png` aus den Workflow-Artefakten herunterladen',
+                '3. Ggf. Skript `scripts/update_fuel_surcharges.py` anpassen',
+                '4. Kraftstoffzuschläge manuell unter https://www.ups.com/de/de/support/shipping-support/shipping-costs-rates/fuel-surcharges prüfen',
+                '',
+                `*Erstellt automatisch durch GitHub Actions (Run #${context.runId})*`
+              ].join('\n'),
+              labels: ['fuel-surcharge-update', 'bug']
+            });
+            console.log('Fehler-Issue erstellt.');
+
+      # ── 6. Fehler jetzt wirklich werfen (nach Issue-Erstellung) ──────────
+      - name: Workflow-Fehler weiterleiten
+        if: steps.update.outcome == 'failure'
+        run: exit 1
+
+      # ── 7. Screenshot als Artefakt hochladen (Debugging) ─────────────────
+      - name: Debug-Screenshot hochladen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ups-debug-screenshot
+          path: ups_debug_screenshot.png
+          if-no-files-found: ignore
+          retention-days: 7
+
+      # ── 8. Änderungen committen ───────────────────────────────────────────
+      - name: Änderungen committen und pushen
+        if: steps.update.outcome == 'success'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Prüfen ob die Excel-Datei geändert wurde
+          if git diff --quiet "0493_Frachtenrechner_KEP_DATA.xlsx"; then
+            echo "Keine Änderungen in der Excel-Datei – kein Commit nötig."
+          else
+            TODAY=$(date +'%d.%m.%Y')
+            git add "0493_Frachtenrechner_KEP_DATA.xlsx"
+            git commit -m "chore: UPS Kraftstoffzuschläge aktualisiert ($TODAY)"
+            git push origin main
+            echo "✅ Änderungen erfolgreich gepusht."
+          fi
