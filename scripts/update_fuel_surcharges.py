@@ -180,11 +180,12 @@ def scrape_ups_fuel_surcharges() -> tuple[float, float]:
             )
         )
         page = context.new_page()
+        screenshot_path = "ups_debug_screenshot.png"
 
         try:
             page.goto(UPS_URL, wait_until="networkidle", timeout=60_000)
-        except PlaywrightTimeout:
-            print("  Warnung: networkidle-Timeout – versuche trotzdem zu parsen")
+        except Exception as nav_err:
+            print(f"  Navigation-Fehler: {type(nav_err).__name__}: {nav_err}")
 
         # Cookie-Banner wegklicken (falls vorhanden)
         for selector in [
@@ -204,10 +205,12 @@ def scrape_ups_fuel_surcharges() -> tuple[float, float]:
         # Kurz warten, damit dynamische Inhalte laden
         page.wait_for_timeout(3_000)
 
-        # Screenshot für Debugging speichern
-        screenshot_path = "ups_debug_screenshot.png"
-        page.screenshot(path=screenshot_path, full_page=True)
-        print(f"  Screenshot gespeichert: {screenshot_path}")
+        # Screenshot für Debugging speichern (auch bei Fehler)
+        try:
+            page.screenshot(path=screenshot_path, full_page=True)
+            print(f"  Screenshot gespeichert: {screenshot_path}")
+        except Exception as ss_err:
+            print(f"  Screenshot fehlgeschlagen: {ss_err}")
 
         # ── Strategie 1: Tabellen ────────────────────────────────────────────
         print("\n[2] Strategie 1: Tabellen-Analyse")
