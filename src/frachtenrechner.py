@@ -1,5 +1,9 @@
 import streamlit as st
 import pandas as pd
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parents[1]
+DATA_FILE = BASE_DIR / "data" / "0493_Frachtenrechner_KEP_DATA.xlsx"
 
 # Ab diesem Gewicht gilt rate * gewicht (statt nur rate) je Tarif.
 # Tarife die hier nicht aufgeführt sind, verwenden immer nur rate.
@@ -17,7 +21,7 @@ RATE_MAL_GEWICHT_AB = {
 
 # Excel-Daten laden
 def load_data():
-    xls = pd.ExcelFile("0493_Frachtenrechner_KEP_DATA.xlsx")
+    xls = pd.ExcelFile(DATA_FILE)
     country_codes = pd.read_excel(xls, "COUNTRY_CODES")
     zonen_import = pd.read_excel(xls, "Zonen_Import")
     zonen_export = pd.read_excel(xls, "Zonen_Export")
