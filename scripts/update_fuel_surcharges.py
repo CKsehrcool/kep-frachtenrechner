@@ -17,7 +17,7 @@ from pathlib import Path
 
 # ── Konfiguration ─────────────────────────────────────────────────────────────
 
-EXCEL_FILENAME = "0493_Frachtenrechner_KEP_DATA.xlsx"
+EXCEL_PATH = Path(__file__).resolve().parents[1] / "data" / "0493_Frachtenrechner_KEP_DATA.xlsx"
 SHEET_NAME = "adds"
 UPS_URL = "https://www.ups.com/de/de/support/shipping-support/shipping-costs-rates/fuel-surcharges"
 
@@ -204,10 +204,9 @@ def main():
     print("=" * 60)
 
     # Excel-Datei suchen
-    excel_path = Path(EXCEL_FILENAME)
-    if not excel_path.exists():
-        candidates = list(Path(".").glob("*.xlsx"))
-        print(f"  {EXCEL_FILENAME} nicht gefunden. Verfügbare xlsx: {candidates}")
+    excel_path = EXCEL_PATH
+    if not excel_path.is_file():
+        print(f"  Tarifdatei nicht gefunden: {excel_path}", file=sys.stderr)
         sys.exit(1)
 
     print(f"\nExcel-Datei: {excel_path.resolve()}")

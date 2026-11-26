@@ -100,11 +100,11 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          if git diff --quiet "0493_Frachtenrechner_KEP_DATA.xlsx"; then
+          if git diff --quiet "data/0493_Frachtenrechner_KEP_DATA.xlsx"; then
             echo "Keine Änderungen in der Excel-Datei – kein Commit nötig."
           else
             TODAY=$(date +'%d.%m.%Y')
-            git add "0493_Frachtenrechner_KEP_DATA.xlsx"
+            git add "data/0493_Frachtenrechner_KEP_DATA.xlsx"
             git commit -m "chore: UPS Kraftstoffzuschläge aktualisiert ($TODAY)"
             git push origin main
             echo "✅ Änderungen erfolgreich gepusht."
