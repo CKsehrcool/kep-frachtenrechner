@@ -124,6 +124,12 @@ st.write(f"**Frachtkosten Export:** {export_kosten:.2f} €")
 st.write(f"**Dieselzuschlag Export:** {export_diesel:.2f} €")
 st.write(f"**Total Export:** {export_total:.2f} €")
 
+# Die Summen verwenden die auf Cent gerundeten Einzelbeträge der Anzeige.
+export_total_gerundet = round(float(export_total), 2)
+gesamt_import_export = round(float(import_total), 2) + export_total_gerundet
+st.divider()
+st.write(f"**Gesamtkosten Import + Export:** {gesamt_import_export:.2f} €")
+
 # Block 3: Jobkosten
 st.header("Jobkosten")
 if import_gewicht > 0:
@@ -131,7 +137,7 @@ if import_gewicht > 0:
 else:
     anteil_import = 0.0
 
-total_job = anteil_import + export_total
+total_job = round(float(anteil_import), 2) + export_total_gerundet
 st.write(f"**Anteilige Importkosten:** {anteil_import:.2f} €")
 st.write(f"**Exportkosten:** {export_total:.2f} €")
 st.write(f"**Jobkosten Total:** {total_job:.2f} €")
